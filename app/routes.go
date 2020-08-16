@@ -6,4 +6,5 @@ func (app *App) handleRequests() {
 	app.Router.HandleFunc("/api/v1/users/", app.createUser).Methods("POST")
 	app.Router.HandleFunc("/api/v1/users/{id:[0-9]+}", app.getUser).Methods("GET")
 	app.Router.HandleFunc("/api/v1/users/{id:[0-9]+}", app.deleteUser).Methods("DELETE")
+	app.Router.HandleFunc("/api/v1/users/{id:[0-9]+}", app.updateUser).Methods("PUT")
 }
