@@ -26,3 +26,12 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }
+
+func inArray(obj string, array []string) bool {
+	for _, v := range array {
+		if v == obj {
+			return true
+		}
+	}
+	return false
+}
