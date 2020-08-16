@@ -56,3 +56,18 @@ func (u *User) DeleteUser(db *pg.DB) error {
 
 	return nil
 }
+
+// UpdateUser updates the user
+func (u *User) UpdateUser(db *pg.DB) error {
+	count, err := db.Model(u).WherePK().Count()
+
+	if count < 1 {
+		return errors.New("User does not exist")
+	}
+	_, err = db.Model(u).WherePK().Update()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

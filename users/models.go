@@ -11,6 +11,7 @@ type User struct {
 	Email        string      `json:"email"`
 	FName        string      `json:"first_name"`
 	LName        string      `json:"last_name"`
+	Role         string      `json:"role"`
 	DatesPresent []time.Time `json:"dates_present"`
 }
 
