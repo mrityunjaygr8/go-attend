@@ -17,6 +17,7 @@ func main() {
 		FName:        "user",
 		LName:        "example",
 		DatesPresent: []time.Time{time.Now(), time.Now().AddDate(0, 0, -3)},
+		Role:         "admin",
 	}
 
 	newUser := &users.User{
@@ -24,6 +25,7 @@ func main() {
 		FName:        "user",
 		LName:        "example",
 		DatesPresent: []time.Time{time.Now(), time.Now().AddDate(0, 0, -3)},
+		Role:         "base",
 	}
 
 	app := app.App{Port: ":8000"}
