@@ -30,8 +30,13 @@ func (app *App) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if (user.Email == "") || (user.FName == "") || (user.LName == "") {
+	if (user.Email == "") || (user.FName == "") || (user.LName == "") || (user.Role == "") {
 		respondWithError(w, http.StatusBadRequest, "Missing fields")
+		return
+	}
+
+	if !inArray(user.Role, []string{"base", "admin"}) {
+		respondWithError(w, http.StatusBadRequest, "The 'Role' field must be one of: base, admin")
 		return
 	}
 
@@ -80,4 +85,43 @@ func (app *App) deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "User deleted successfully"})
+}
+
+func (app *App) updateUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	user := &users.User{ID: int64(id)}
+	user, err = user.GetUser(app.Db)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	var newUser users.User
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&newUser); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	defer r.Body.Close()
+
+	if (newUser.Email != user.Email) || (newUser.FName != user.FName) || (newUser.LName != user.LName) {
+		respondWithError(w, http.StatusBadRequest, "Cannot edit the email, first name and last name.")
+		return
+	}
+
+	if !inArray(newUser.Role, []string{"base", "admin"}) {
+		respondWithError(w, http.StatusBadRequest, "The 'Role' field must be one of: base, admin")
+		return
+	}
+
+	newUser.ID = user.ID
+
+	err = newUser.UpdateUser(app.Db)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, newUser)
 }
