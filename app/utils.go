@@ -1,9 +1,14 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/mrityunjaygr8/go-attend/users"
 )
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -34,4 +39,33 @@ func inArray(obj string, array []string) bool {
 		}
 	}
 	return false
+}
+
+func jwtVerify(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var header = r.Header.Get("Authorization")
+
+		header = strings.TrimSpace(header)
+
+		if header == "" {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(jsonResponse{Message: "Missing auth token"})
+			return
+		}
+
+		tk := &users.JWTToken{}
+
+		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
+			return []byte("secret"), nil
+		})
+
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(jsonResponse{Message: err.Error()})
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "user", tk)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

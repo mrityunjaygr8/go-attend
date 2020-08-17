@@ -28,9 +28,7 @@ func (app *App) CreateSchema() error {
 	}
 
 	for _, model := range models {
-		err := app.Db.Model(model).CreateTable(&orm.CreateTableOptions{
-			Temp: true,
-		})
+		err := app.Db.Model(model).CreateTable(&orm.CreateTableOptions{})
 
 		if err != nil {
 			return err
@@ -48,11 +46,11 @@ func (app *App) Setup(config string) error {
 	}
 
 	app.Db = pg.Connect(opt)
-	err = app.CreateSchema()
-	if err != nil {
-		return err
-	}
-	app.Router = mux.NewRouter()
+	// err = app.CreateSchema()
+	// if err != nil {
+	// 	return err
+	// }
+	app.Router = mux.NewRouter().StrictSlash(true)
 	app.Router.Use(loggingMiddleware)
 	app.handleRequests()
 	return nil
